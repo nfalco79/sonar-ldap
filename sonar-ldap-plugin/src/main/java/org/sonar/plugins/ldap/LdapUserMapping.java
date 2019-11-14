@@ -100,8 +100,8 @@ public class LdapUserMapping {
   /**
    * Request. For example:
    * <pre>
-   * (&(objectClass=inetOrgPerson)(uid={0}))
-   * (&(objectClass=user)(sAMAccountName={0}))
+   * (&amp;(objectClass=inetOrgPerson)(uid={0}))
+   * (&amp;(objectClass=user)(sAMAccountName={0}))
    * </pre>
    */
   public String getRequest() {
