@@ -46,9 +46,9 @@
     </contributor>
   </contributors>
   <scm>
-    <connection>scm:git:git@github.com:SonarSource/sonar-ldap.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarSource/sonar-ldap.git</developerConnection>
-    <url>https://github.com/SonarSource/sonar-ldap</url>
+    <connection>scm:git:git@github.com:nfalco79/sonar-ldap.git</connection>
+    <developerConnection>scm:git:git@github.com:nfalco79/sonar-ldap.git</developerConnection>
+    <url>https://github.com/nfalco79/sonar-ldap</url>
     <tag>HEAD</tag>
   </scm>
 
