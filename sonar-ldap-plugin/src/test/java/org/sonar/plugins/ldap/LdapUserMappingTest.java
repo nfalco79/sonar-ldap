@@ -20,7 +20,6 @@
 package org.sonar.plugins.ldap;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +27,7 @@ public class LdapUserMappingTest {
 
   @Test
   public void defaults() {
-    LdapUserMapping userMapping = new LdapUserMapping(new Settings(), "ldap");
+    LdapUserMapping userMapping = new LdapUserMapping(new TestConfiguration(), "ldap");
     assertThat(userMapping.getBaseDn()).isNull();
     assertThat(userMapping.getRequest()).isEqualTo("(&(objectClass=inetOrgPerson)(uid={0}))");
     assertThat(userMapping.getRealNameAttribute()).isEqualTo("cn");
@@ -43,10 +42,10 @@ public class LdapUserMappingTest {
 
   @Test
   public void activeDirectory() {
-    Settings settings = new Settings()
-        .setProperty("ldap.user.baseDn", "cn=users")
-        .setProperty("ldap.user.objectClass", "user")
-        .setProperty("ldap.user.loginAttribute", "sAMAccountName");
+    TestConfiguration settings = new TestConfiguration() //
+      .setProperty("ldap.user.baseDn", "cn=users") //
+      .setProperty("ldap.user.objectClass", "user") //
+      .setProperty("ldap.user.loginAttribute", "sAMAccountName");
 
     LdapUserMapping userMapping = new LdapUserMapping(settings, "ldap");
     LdapSearch search = userMapping.createSearch(null, "tester");
@@ -64,10 +63,10 @@ public class LdapUserMappingTest {
 
   @Test
   public void realm() {
-    Settings settings = new Settings()
-        .setProperty("ldap.realm", "example.org")
-        .setProperty("ldap.userObjectClass", "user")
-        .setProperty("ldap.loginAttribute", "sAMAccountName");
+    TestConfiguration settings = new TestConfiguration() //
+      .setProperty("ldap.realm", "example.org") //
+      .setProperty("ldap.userObjectClass", "user") //
+      .setProperty("ldap.loginAttribute", "sAMAccountName");
 
     LdapUserMapping userMapping = new LdapUserMapping(settings, "ldap");
     assertThat(userMapping.getBaseDn()).isEqualTo("dc=example,dc=org");

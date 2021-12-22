@@ -20,7 +20,7 @@
 package org.sonar.plugins.ldap;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -45,23 +45,23 @@ public class LdapUserMapping {
   /**
    * Constructs mapping from Sonar settings.
    */
-  public LdapUserMapping(Settings settings, String settingsPrefix) {
+  public LdapUserMapping(Configuration settings, String settingsPrefix) {
     String usesrBaseDnSettingKey = settingsPrefix + ".user.baseDn";
-    String usersBaseDn = settings.getString(usesrBaseDnSettingKey);
+    String usersBaseDn = settings.get(usesrBaseDnSettingKey).orElse(null);
     if (usersBaseDn == null) {
-      String realm = settings.getString(settingsPrefix + ".realm");
+      String realm = settings.get(settingsPrefix + ".realm").orElse(null);
       if (realm != null) {
         LOG.warn("Auto-discovery feature is deprecated, please use '{}' to specify user search dn", usesrBaseDnSettingKey);
         usersBaseDn = LdapAutodiscovery.getDnsDomainDn(realm);
       }
     }
 
-    String objectClass = settings.getString(settingsPrefix + ".user.objectClass");
-    String loginAttribute = settings.getString(settingsPrefix + ".user.loginAttribute");
+    String objectClass = settings.get(settingsPrefix + ".user.objectClass").orElse(null);
+    String loginAttribute = settings.get(settingsPrefix + ".user.loginAttribute").orElse(null);
 
     this.baseDn = usersBaseDn;
-    this.realNameAttribute = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.realNameAttribute"), DEFAULT_NAME_ATTRIBUTE);
-    this.emailAttribute = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.emailAttribute"), DEFAULT_EMAIL_ATTRIBUTE);
+    this.realNameAttribute = settings.get(settingsPrefix + ".user.realNameAttribute").orElse(DEFAULT_NAME_ATTRIBUTE);
+    this.emailAttribute = settings.get(settingsPrefix + ".user.emailAttribute").orElse(DEFAULT_EMAIL_ATTRIBUTE);
 
     String req;
     if (StringUtils.isNotBlank(objectClass) || StringUtils.isNotBlank(loginAttribute)) {
@@ -74,7 +74,7 @@ public class LdapUserMapping {
           "replaced by single property '{}.user.request' with value: {}",
           settingsPrefix, settingsPrefix, settingsPrefix, req);
     } else {
-      req = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.request"), DEFAULT_REQUEST);
+      req = settings.get(settingsPrefix + ".user.request").orElse(DEFAULT_REQUEST);
     }
     req = StringUtils.replace(req, "{login}", "{0}");
     this.request = req;

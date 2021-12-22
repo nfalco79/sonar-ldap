@@ -23,7 +23,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.plugins.ldap.server.LdapServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +59,7 @@ public class LdapReferralsTest {
   }
 
   private static Map<String, LdapContextFactory> createFactories(@Nullable String propertyKey, @Nullable String propertyValue) {
-    Settings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(server, null);
+    TestConfiguration settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(server, null);
     if (propertyKey != null) {
       settings.setProperty(propertyKey, propertyValue);
     }

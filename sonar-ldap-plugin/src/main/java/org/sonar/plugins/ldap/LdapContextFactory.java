@@ -31,11 +31,10 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
 import javax.security.auth.Subject;
-import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -75,14 +74,14 @@ public class LdapContextFactory {
   private final String realm;
   private final String referral;
 
-  public LdapContextFactory(Settings settings, String settingsPrefix, String ldapUrl) {
-    this.authentication = StringUtils.defaultString(settings.getString(settingsPrefix + ".authentication"), DEFAULT_AUTHENTICATION);
-    this.factory = StringUtils.defaultString(settings.getString(settingsPrefix + ".contextFactoryClass"), DEFAULT_FACTORY);
-    this.realm = settings.getString(settingsPrefix + ".realm");
+  public LdapContextFactory(Configuration settings, String settingsPrefix, String ldapUrl) {
+    this.authentication = settings.get(settingsPrefix + ".authentication").orElse(DEFAULT_AUTHENTICATION);
+    this.factory = settings.get(settingsPrefix + ".contextFactoryClass").orElse(DEFAULT_FACTORY);
+    this.realm = settings.get(settingsPrefix + ".realm").orElse(null);
     this.providerUrl = ldapUrl;
-    this.startTLS = settings.getBoolean(settingsPrefix + ".StartTLS");
-    this.username = settings.getString(settingsPrefix + ".bindDn");
-    this.password = settings.getString(settingsPrefix + ".bindPassword");
+    this.startTLS = settings.getBoolean(settingsPrefix + ".StartTLS").orElse(false);
+    this.username = settings.get(settingsPrefix + ".bindDn").orElse(null);
+    this.password = settings.get(settingsPrefix + ".bindPassword").orElse(null);
     this.referral = getReferralsMode(settings, settingsPrefix + ".followReferrals");
   }
 
@@ -141,7 +140,7 @@ public class LdapContextFactory {
   }
 
   private InitialDirContext createInitialDirContextUsingGssapi(String principal, String credentials) throws NamingException {
-    Configuration.setConfiguration(new Krb5LoginConfiguration());
+    javax.security.auth.login.Configuration.setConfiguration(new Krb5LoginConfiguration());
     InitialDirContext initialDirContext;
     try {
       LoginContext lc = new LoginContext(getClass().getName(), new CallbackHandlerImpl(principal, credentials));
@@ -224,9 +223,9 @@ public class LdapContextFactory {
     return referral;
   }
 
-  private static String getReferralsMode(Settings settings, String followReferralsSettingKey) {
+  private static String getReferralsMode(Configuration settings, String followReferralsSettingKey) {
     if (settings.hasKey(followReferralsSettingKey)) {
-      return settings.getBoolean(followReferralsSettingKey) ? REFERRALS_FOLLOW_MODE : REFERRALS_IGNORE_MODE;
+      return settings.getBoolean(followReferralsSettingKey).orElse(true) ? REFERRALS_FOLLOW_MODE : REFERRALS_IGNORE_MODE;
     }
     // By default follow referrals
     return REFERRALS_FOLLOW_MODE;

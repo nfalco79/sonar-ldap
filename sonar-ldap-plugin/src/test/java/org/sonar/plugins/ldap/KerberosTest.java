@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.security.Authenticator;
 import org.sonar.api.security.ExternalGroupsProvider;
 import org.sonar.plugins.ldap.server.LdapServer;
@@ -44,7 +44,7 @@ public class KerberosTest {
 
   @Test
   public void test() {
-    Settings settings = configure();
+    Configuration settings = configure();
     LdapRealm ldapRealm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
 
     ldapRealm.init();
@@ -59,7 +59,7 @@ public class KerberosTest {
 
   @Test
   public void wrong_bind_password() {
-    Settings settings = configure()
+    Configuration settings = configure()
       .setProperty("ldap.bindPassword", "wrong_bind_password");
     LdapRealm ldapRealm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
     try {
@@ -70,8 +70,8 @@ public class KerberosTest {
     }
   }
 
-  private static Settings configure() {
-    return new Settings()
+  private static TestConfiguration configure() {
+    return new TestConfiguration()
       .setProperty("ldap.url", server.getUrl())
       .setProperty("ldap.authentication", LdapContextFactory.AUTH_METHOD_GSSAPI)
       .setProperty("ldap.bindDn", "SonarQube@EXAMPLE.ORG")

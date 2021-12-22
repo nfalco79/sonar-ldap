@@ -24,7 +24,7 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.plugins.ldap.LdapAutodiscovery.LdapSrvRecord;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,8 +38,8 @@ public class LdapSettingsManagerTest {
 
   @Test
   public void shouldFailWhenNoLdapUrl() throws Exception {
-    Settings settings = generateMultipleLdapSettingsWithUserAndGroupMapping();
-    settings.removeProperty("ldap.example.url");
+    Configuration settings = generateMultipleLdapSettingsWithUserAndGroupMapping() //
+      .removeProperty("ldap.example.url");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings, new LdapAutodiscovery());
 
     thrown.expect(LdapException.class);
@@ -49,8 +49,8 @@ public class LdapSettingsManagerTest {
 
   @Test
   public void shouldFailWhenMixingSingleAndMultipleConfiguration() throws Exception {
-    Settings settings = generateMultipleLdapSettingsWithUserAndGroupMapping();
-    settings.setProperty("ldap.url", "ldap://foo");
+    Configuration settings = generateMultipleLdapSettingsWithUserAndGroupMapping() //
+      .setProperty("ldap.url", "ldap://foo");
     LdapSettingsManager settingsManager = new LdapSettingsManager(settings, new LdapAutodiscovery());
 
     thrown.expect(LdapException.class);
@@ -142,16 +142,15 @@ public class LdapSettingsManagerTest {
    */
   @Test
   public void testEmptySettings() throws Exception {
-    LdapSettingsManager settingsManager = new LdapSettingsManager(
-      new Settings(), new LdapAutodiscovery());
+    LdapSettingsManager settingsManager = new LdapSettingsManager(new TestConfiguration(), new LdapAutodiscovery());
 
     thrown.expect(LdapException.class);
     thrown.expectMessage("The property 'ldap.url' is empty and no realm configured to try auto-discovery.");
     settingsManager.getContextFactories();
   }
 
-  private Settings generateMultipleLdapSettingsWithUserAndGroupMapping() {
-    Settings settings = new Settings();
+  private TestConfiguration generateMultipleLdapSettingsWithUserAndGroupMapping() {
+    TestConfiguration settings = new TestConfiguration();
 
     settings.setProperty("ldap.servers", "example,infosupport");
 
@@ -172,8 +171,8 @@ public class LdapSettingsManagerTest {
     return settings;
   }
 
-  private Settings generateSingleLdapSettingsWithUserAndGroupMapping() {
-    Settings settings = new Settings();
+  private TestConfiguration generateSingleLdapSettingsWithUserAndGroupMapping() {
+    TestConfiguration settings = new TestConfiguration();
 
     settings.setProperty("ldap.url", "/users.example.org.ldif")
       .setProperty("ldap.user.baseDn", "ou=users,dc=example,dc=org")
@@ -184,14 +183,12 @@ public class LdapSettingsManagerTest {
     return settings;
   }
 
-  private Settings generateAutodiscoverSettings() {
-    Settings settings = new Settings();
-
-    settings.setProperty("ldap.realm", "example.org")
-      .setProperty("ldap.user.baseDn", "ou=users,dc=example,dc=org")
-      .setProperty("ldap.group.baseDn", "ou=groups,dc=example,dc=org")
-      .setProperty("ldap.group.request",
-        "(&(objectClass=posixGroup)(memberUid={uid}))");
+  private TestConfiguration generateAutodiscoverSettings() {
+    TestConfiguration settings = new TestConfiguration() //
+      .setProperty("ldap.realm", "example.org") //
+      .setProperty("ldap.user.baseDn", "ou=users,dc=example,dc=org") //
+      .setProperty("ldap.group.baseDn", "ou=groups,dc=example,dc=org") //
+      .setProperty("ldap.group.request", "(&(objectClass=posixGroup)(memberUid={uid}))");
 
     return settings;
   }

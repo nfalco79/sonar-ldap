@@ -19,15 +19,39 @@
  */
 package org.sonar.plugins.ldap;
 
-@SuppressWarnings("serial")
-public class LdapException extends RuntimeException {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-  public LdapException(String message) {
-    super(message);
-  }
+import org.sonar.api.config.Configuration;
 
-  public LdapException(String message, Throwable cause) {
-    super(message, cause);
-  }
+public class TestConfiguration implements Configuration {
+
+    Map<String, String> props = new HashMap<>();
+
+    @Override
+    public Optional<String> get(String key) {
+        return Optional.ofNullable(props.get(key));
+    }
+
+    @Override
+    public boolean hasKey(String key) {
+        return props.containsKey(key);
+    }
+
+    @Override
+    public String[] getStringArray(String key) {
+        return hasKey(key) ? props.get(key).split("\\s*,\\s*") : new String[0];
+    }
+
+    public TestConfiguration setProperty(String key, String value) {
+        props.put(key, value);
+        return this;
+    }
+
+    public Configuration removeProperty(String key) {
+        props.remove(key);
+        return this;
+    }
 
 }

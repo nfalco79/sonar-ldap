@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -41,7 +41,7 @@ public class LdapSettingsManager {
   private static final String LDAP_SERVERS_PROPERTY = "ldap.servers";
   private static final String LDAP_PROPERTY_PREFIX = "ldap";
   private static final String DEFAULT_LDAP_SERVER_KEY = "<default>";
-  private final Settings settings;
+  private final Configuration settings;
   private final LdapAutodiscovery ldapAutodiscovery;
   private Map<String, LdapUserMapping> userMappings = null;
   private Map<String, LdapGroupMapping> groupMappings = null;
@@ -52,7 +52,7 @@ public class LdapSettingsManager {
    *
    * @param settings The settings to use.
    */
-  public LdapSettingsManager(Settings settings, LdapAutodiscovery ldapAutodiscovery) {
+  public LdapSettingsManager(Configuration settings, LdapAutodiscovery ldapAutodiscovery) {
     this.settings = settings;
     this.ldapAutodiscovery = ldapAutodiscovery;
   }
@@ -148,9 +148,9 @@ public class LdapSettingsManager {
   }
 
   private void initSimpleLdapConfiguration() {
-    String realm = settings.getString(LDAP_PROPERTY_PREFIX + ".realm");
+    String realm = settings.get(LDAP_PROPERTY_PREFIX + ".realm").orElse(null);
     String ldapUrlKey = LDAP_PROPERTY_PREFIX + ".url";
-    String ldapUrl = settings.getString(ldapUrlKey);
+    String ldapUrl = settings.get(ldapUrlKey).orElse(null);
     if (ldapUrl == null && realm != null) {
       LOG.warn("Auto-discovery feature is deprecated, please use '{}' to specify LDAP url", ldapUrlKey);
       List<LdapSrvRecord> ldapServers = ldapAutodiscovery.getLdapServers(realm);
@@ -183,7 +183,7 @@ public class LdapSettingsManager {
     for (String serverKey : serverKeys) {
       String prefix = LDAP_PROPERTY_PREFIX + "." + serverKey;
       String ldapUrlKey = prefix + ".url";
-      String ldapUrl = settings.getString(ldapUrlKey);
+      String ldapUrl = settings.get(ldapUrlKey).orElse(null);
       if (StringUtils.isBlank(ldapUrl)) {
         throw new LdapException(String.format("The property '%s' property is empty while it is mandatory.", ldapUrlKey));
       }

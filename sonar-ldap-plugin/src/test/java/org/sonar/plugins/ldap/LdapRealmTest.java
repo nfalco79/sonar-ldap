@@ -22,7 +22,7 @@ package org.sonar.plugins.ldap;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.security.ExternalGroupsProvider;
 import org.sonar.api.security.ExternalUsersProvider;
 import org.sonar.plugins.ldap.server.LdapServer;
@@ -39,10 +39,9 @@ public class LdapRealmTest {
 
   @Test
   public void normal() {
-    Settings settings = new Settings()
-      .setProperty("ldap.url", server.getUrl());
+    Configuration settings = new TestConfiguration().setProperty("ldap.url", server.getUrl());
     LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
-    assertThat(realm.getName()).isEqualTo("LDAP");
+    assertThat(realm.getName()).isEqualTo(LdapRealm.REALM_NAME);
     realm.init();
     assertThat(realm.doGetAuthenticator()).isInstanceOf(LdapAuthenticator.class);
     assertThat(realm.getUsersProvider()).isInstanceOf(ExternalUsersProvider.class).isInstanceOf(LdapUsersProvider.class);
@@ -51,11 +50,11 @@ public class LdapRealmTest {
 
   @Test
   public void noConnection() {
-    Settings settings = new Settings()
+    Configuration settings = new TestConfiguration() //
       .setProperty("ldap.url", "ldap://no-such-host")
       .setProperty("ldap.group.baseDn", "cn=groups,dc=example,dc=org");
     LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
-    assertThat(realm.getName()).isEqualTo("LDAP");
+    assertThat(realm.getName()).isEqualTo(LdapRealm.REALM_NAME);
     try {
       realm.init();
       fail("Since there is no connection, the init method has to throw an exception.");

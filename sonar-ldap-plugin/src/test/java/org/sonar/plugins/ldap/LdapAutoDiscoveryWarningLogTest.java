@@ -22,7 +22,7 @@ package org.sonar.plugins.ldap;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.ldap.server.LdapServer;
@@ -43,10 +43,9 @@ public class LdapAutoDiscoveryWarningLogTest {
 
   @Test
   public void does_not_display_log_when_not_using_auto_discovery() {
-    Settings settings = new Settings()
-      .setProperty("ldap.url", server.getUrl());
+    Configuration settings = new TestConfiguration().setProperty("ldap.url", server.getUrl());
     LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
-    assertThat(realm.getName()).isEqualTo("LDAP");
+    assertThat(realm.getName()).isEqualTo(LdapRealm.REALM_NAME);
 
     realm.init();
 
@@ -58,7 +57,7 @@ public class LdapAutoDiscoveryWarningLogTest {
     LdapAutodiscovery ldapAutodiscovery = mock(LdapAutodiscovery.class);
     when(ldapAutodiscovery.getLdapServers("example.org")).thenReturn(singletonList(new LdapAutodiscovery.LdapSrvRecord(server.getUrl(), 1, 1)));
     // ldap.url setting is not set
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(new Settings().setProperty("ldap.realm", "example.org"),
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(new TestConfiguration().setProperty("ldap.realm", "example.org"),
       ldapAutodiscovery));
 
     realm.init();
@@ -69,7 +68,7 @@ public class LdapAutoDiscoveryWarningLogTest {
   @Test
   public void display_warning_log_when_using_auto_discovery_to_detect_user_baseDn_on_single_server() {
     // ldap.user.baseDn setting is not set
-    Settings settings = new Settings().setProperty("ldap.url", server.getUrl()).setProperty("ldap.realm", "example.org");
+    Configuration settings = new TestConfiguration().setProperty("ldap.url", server.getUrl()).setProperty("ldap.realm", "example.org");
     LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
 
     realm.init();
@@ -81,7 +80,7 @@ public class LdapAutoDiscoveryWarningLogTest {
   public void display_warning_log_when_using_auto_discovery_to_detect_user_baseDn_on_multiple_servers() throws Exception {
     ApacheDS server2 = ApacheDS.start("example.org", "dc=example,dc=org", "target/ldap-work2/");
     server2.importLdif(LdapAutoDiscoveryWarningLogTest.class.getResourceAsStream("/users.example.org.ldif"));
-    Settings settings = new Settings()
+    Configuration settings = new TestConfiguration()
       .setProperty("ldap.servers", "example,infosupport")
       // ldap.XXX.user.baseDn settings are not set on both servers
       .setProperty("ldap.example.url", server.getUrl())

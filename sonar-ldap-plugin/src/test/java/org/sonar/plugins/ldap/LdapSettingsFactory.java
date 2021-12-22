@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.ldap;
 
-import org.sonar.api.config.Settings;
 import org.sonar.plugins.ldap.server.LdapServer;
 
 import javax.annotation.Nullable;
@@ -34,8 +33,8 @@ public class LdapSettingsFactory {
    *
    * @return The specific settings.
    */
-  public static Settings generateSimpleAnonymousAccessSettings(LdapServer exampleServer, @Nullable LdapServer infosupportServer) {
-    Settings settings = new Settings();
+  public static TestConfiguration generateSimpleAnonymousAccessSettings(LdapServer exampleServer, @Nullable LdapServer infosupportServer) {
+    TestConfiguration settings = new TestConfiguration();
 
     if (infosupportServer != null) {
       settings.setProperty("ldap.servers", "example,infosupport");
@@ -62,8 +61,8 @@ public class LdapSettingsFactory {
    * @param infosupportServer The second ldap server.
    * @return The specific settings.
    */
-  public static Settings generateAuthenticationSettings(LdapServer exampleServer, @Nullable LdapServer infosupportServer, String authMethod) {
-    Settings settings = new Settings();
+  public static TestConfiguration generateAuthenticationSettings(LdapServer exampleServer, @Nullable LdapServer infosupportServer, String authMethod) {
+    TestConfiguration settings = new TestConfiguration();
 
     if (infosupportServer != null) {
       settings.setProperty("ldap.servers", "example,infosupport");

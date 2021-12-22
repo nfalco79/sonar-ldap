@@ -20,7 +20,7 @@
 package org.sonar.plugins.ldap;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +28,7 @@ public class LdapGroupMappingTest {
 
   @Test
   public void defaults() {
-    LdapGroupMapping groupMapping = new LdapGroupMapping(new Settings(), "ldap");
+    LdapGroupMapping groupMapping = new LdapGroupMapping(new TestConfiguration(), "ldap");
 
     assertThat(groupMapping.getBaseDn()).isNull();
     assertThat(groupMapping.getIdAttribute()).isEqualTo("cn");
@@ -46,9 +46,9 @@ public class LdapGroupMappingTest {
 
   @Test
   public void backward_compatibility() {
-    Settings settings = new Settings()
-        .setProperty("ldap.group.objectClass", "group")
-        .setProperty("ldap.group.memberAttribute", "member");
+    Configuration settings = new TestConfiguration() //
+      .setProperty("ldap.group.objectClass", "group") //
+      .setProperty("ldap.group.memberAttribute", "member");
     LdapGroupMapping groupMapping = new LdapGroupMapping(settings, "ldap");
 
     assertThat(groupMapping.getRequest()).isEqualTo("(&(objectClass=group)(member={0}))");
@@ -56,8 +56,8 @@ public class LdapGroupMappingTest {
 
   @Test
   public void custom_request() {
-    Settings settings = new Settings()
-        .setProperty("ldap.group.request", "(&(|(objectClass=posixGroup)(objectClass=groupOfUniqueNames))(|(memberUid={uid})(uniqueMember={dn})))");
+    Configuration settings = new TestConfiguration() //
+      .setProperty("ldap.group.request", "(&(|(objectClass=posixGroup)(objectClass=groupOfUniqueNames))(|(memberUid={uid})(uniqueMember={dn})))");
     LdapGroupMapping groupMapping = new LdapGroupMapping(settings, "ldap");
 
     assertThat(groupMapping.getRequest()).isEqualTo("(&(|(objectClass=posixGroup)(objectClass=groupOfUniqueNames))(|(memberUid={0})(uniqueMember={1})))");

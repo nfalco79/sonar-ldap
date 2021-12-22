@@ -29,6 +29,7 @@ import org.sonar.api.security.SecurityRealm;
  * @author Evgeny Mandrikov
  */
 public class LdapRealm extends SecurityRealm {
+  public static final String REALM_NAME = "LDAP-PLUGIN";
 
   private LdapUsersProvider usersProvider;
   private LdapGroupsProvider groupsProvider;
@@ -41,7 +42,7 @@ public class LdapRealm extends SecurityRealm {
 
   @Override
   public String getName() {
-    return "LDAP";
+    return REALM_NAME;
   }
 
   /**
